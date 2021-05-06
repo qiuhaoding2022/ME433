@@ -14961,6 +14961,56 @@ Holes are offset 0.005" to hold pins in place while soldering.
 <text x="5.08" y="10.16" size="1.27" layer="21">&gt;NAME</text>
 <text x="5.08" y="5.08" size="1.27" layer="21">&gt;VALUE</text>
 </package>
+<package name="SNAP">
+<wire x1="1.27" y1="-1.905" x2="1.27" y2="-3.175" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-3.175" x2="0.635" y2="-3.81" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="-3.81" x2="-1.27" y2="-3.175" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="-3.81" x2="1.27" y2="-4.445" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-4.445" x2="1.27" y2="-5.715" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-5.715" x2="0.635" y2="-6.35" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="-6.35" x2="-1.27" y2="-5.715" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="-5.715" x2="-1.27" y2="-4.445" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="-4.445" x2="-0.635" y2="-3.81" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="1.27" x2="1.27" y2="0.635" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="0.635" x2="1.27" y2="-0.635" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-0.635" x2="0.635" y2="-1.27" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="-1.27" x2="-1.27" y2="-0.635" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="-0.635" x2="-1.27" y2="0.635" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="0.635" x2="-0.635" y2="1.27" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-1.905" x2="0.635" y2="-1.27" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="-1.27" x2="-1.27" y2="-1.905" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="-3.175" x2="-1.27" y2="-1.905" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="5.715" x2="1.27" y2="5.08" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="5.08" x2="1.27" y2="4.445" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="4.445" x2="0.635" y2="3.81" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="3.81" x2="-1.27" y2="4.445" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="3.81" x2="1.27" y2="3.175" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="3.175" x2="1.27" y2="1.905" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="1.905" x2="0.635" y2="1.27" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="1.27" x2="-1.27" y2="1.905" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="1.905" x2="-1.27" y2="3.175" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="3.175" x2="-0.635" y2="3.81" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="6.35" x2="-0.635" y2="6.35" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="5.715" x2="0.635" y2="6.35" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="6.35" x2="-1.27" y2="5.715" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="4.445" x2="-1.27" y2="5.715" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="-6.35" x2="-0.635" y2="-6.35" width="0.2032" layer="21"/>
+<pad name="1" x="0" y="5.08" drill="1.016" diameter="1.8796"/>
+<pad name="2" x="0" y="2.54" drill="1.016" diameter="1.8796"/>
+<pad name="3" x="0" y="0" drill="1.016" diameter="1.8796"/>
+<pad name="4" x="0" y="-2.54" drill="1.016" diameter="1.8796"/>
+<pad name="5" x="0" y="-5.08" drill="1.016" diameter="1.8796"/>
+<rectangle x1="-0.254" y1="-5.334" x2="0.254" y2="-4.826" layer="51" rot="R270"/>
+<rectangle x1="-0.254" y1="-2.794" x2="0.254" y2="-2.286" layer="51" rot="R270"/>
+<rectangle x1="-0.254" y1="-0.254" x2="0.254" y2="0.254" layer="51" rot="R270"/>
+<rectangle x1="-0.254" y1="2.286" x2="0.254" y2="2.794" layer="51" rot="R270"/>
+<rectangle x1="-0.254" y1="4.826" x2="0.254" y2="5.334" layer="51" rot="R270"/>
+<text x="2.54" y="1.27" size="1.27" layer="21">&gt;NAME</text>
+<text x="2.54" y="-1.27" size="1.27" layer="21">&gt;VALUE</text>
+<wire x1="1.27" y1="5.08" x2="2.54" y2="6.35" width="0.127" layer="21"/>
+<wire x1="2.54" y1="6.35" x2="2.54" y2="3.81" width="0.127" layer="21"/>
+<wire x1="2.54" y1="3.81" x2="1.27" y2="5.08" width="0.127" layer="21"/>
+</package>
 </packages>
 <packages3d>
 <package3d name="R0402" urn="urn:adsk.eagle:package:23547/3" type="model">
@@ -18152,6 +18202,17 @@ Source: http://www.ledtronics.com/ds/smd-0603/Dstr0092.pdf</description>
 <pin name="11.WRST" x="-17.78" y="-27.94" length="middle"/>
 <pin name="12.RRST" x="17.78" y="-27.94" length="middle" rot="R180"/>
 <wire x1="-15.24" y1="-30.48" x2="15.24" y2="-30.48" width="0.254" layer="94"/>
+</symbol>
+<symbol name="SNAP">
+<pin name="3.GND" x="-5.08" y="0" length="middle"/>
+<pin name="2.VDD" x="-5.08" y="5.08" length="middle"/>
+<pin name="4.PDG" x="-5.08" y="-5.08" length="middle"/>
+<pin name="1.MCLR" x="-5.08" y="10.16" length="middle"/>
+<pin name="5.PGC" x="-5.08" y="-10.16" length="middle"/>
+<wire x1="-2.54" y1="12.7" x2="-2.54" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-12.7" x2="12.7" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="12.7" y1="-12.7" x2="12.7" y2="12.7" width="0.254" layer="94"/>
+<wire x1="12.7" y1="12.7" x2="-2.54" y2="12.7" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -26462,7 +26523,7 @@ This footprint was designed to help hold the alignment of a through-hole compone
 </device>
 </devices>
 </deviceset>
-<deviceset name="MICROUSE">
+<deviceset name="MICROUSB">
 <gates>
 <gate name="G$1" symbol="MICROUSB" x="0" y="0"/>
 </gates>
@@ -26672,6 +26733,25 @@ This footprint was designed to help hold the alignment of a through-hole compone
 <connect gate="G$1" pin="7.D1" pad="7"/>
 <connect gate="G$1" pin="8.RST" pad="8"/>
 <connect gate="G$1" pin="9.STR" pad="9"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SNAP">
+<gates>
+<gate name="G$1" symbol="SNAP" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SNAP">
+<connects>
+<connect gate="G$1" pin="1.MCLR" pad="1"/>
+<connect gate="G$1" pin="2.VDD" pad="2"/>
+<connect gate="G$1" pin="3.GND" pad="3"/>
+<connect gate="G$1" pin="4.PDG" pad="4"/>
+<connect gate="G$1" pin="5.PGC" pad="5"/>
 </connects>
 <technologies>
 <technology name=""/>
