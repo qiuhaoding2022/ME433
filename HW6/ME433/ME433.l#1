@@ -26523,7 +26523,7 @@ This footprint was designed to help hold the alignment of a through-hole compone
 </device>
 </devices>
 </deviceset>
-<deviceset name="MICROUSE">
+<deviceset name="MICROUSB">
 <gates>
 <gate name="G$1" symbol="MICROUSB" x="0" y="0"/>
 </gates>
