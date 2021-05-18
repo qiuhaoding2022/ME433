@@ -64,14 +64,23 @@ int main() {
     __builtin_enable_interrupts();
     
     unsigned char i=0;
-    float vA,vB,t;
+    float vA=0,vB=0,dt=0.001,tA=0,tB=0;
+    int slope = 1024*2/(1/dt);
     while(1) {
         LATAbits.LATA0=1;
-        vA=512+512*sin(2*pi*t);
-        t=t+0.001;
-        send_DAC(1,(unsigned short)vA); //0 A, 1 B, max 2^10
+        vA=512+512*sin(4*pi*tA);
+        vB=vB+slope;
+        tB=tB+dt;
+        tA=tA+dt;
+        if(tB>=0.5){
+            slope=slope*-1;
+            tB=0;
+        }
+        send_DAC(0,(unsigned short)vA); //0 A, 1 B, max 2^10
+        send_DAC(1,(unsigned short)vB); //0 A, 1 B, max 2^10   
+
         _CP0_SET_COUNT(0);
-        while (_CP0_GET_COUNT() <48000000/2*0.001) {}
+        while (_CP0_GET_COUNT() <48000000/2*dt) {}
     }
 }
 
