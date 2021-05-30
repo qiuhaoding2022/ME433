@@ -1,10 +1,7 @@
-// initialize SPI1
 #include<xc.h>           // processor SFR definitions
 #include<sys/attribs.h>  // __ISR macro
 #include<stdio.h>
 #include "i2c_master_noint.h"
-#include <math.h>
-#define pi 3.1415926
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
 #pragma config JTAGEN = OFF // disable jtag
@@ -35,9 +32,12 @@
 #pragma config USERID = 36 // some 16bit userid, doesn't matter what
 #pragma config PMDL1WAY = OFF // allow multiple reconfigurations
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
-void send_DAC(char AB, unsigned short val);
 
-
+void delay(void);
+void i2cwrite(char reg,char val);
+unsigned char i2cread(char reg);
+unsigned char Wadd=0b01000000;
+unsigned char Radd=0b01000001;
 int main() {
 
     __builtin_disable_interrupts(); // disable interrupts while initializing things
@@ -58,41 +58,53 @@ int main() {
     TRISAbits.TRISA4 = 0;
     LATAbits.LATA4 = 0;
     TRISBbits.TRISB4 = 1;
-
-    initSPI();
-    
     __builtin_enable_interrupts();
     
-    unsigned char i=0;
-    float vA=0,vB=0,dt=0.001,tA=0,tB=0;
-    int slope = 1024*2/(1/dt);
-    while(1) {
-        LATAbits.LATA0=1;
-        vA=512+512*sin(4*pi*tA);
-        vB=vB+slope;
-        tB=tB+dt;
-        tA=tA+dt;
-        if(tB>=0.5){
-            slope=slope*-1;
-            tB=0;
-        }
-        send_DAC(0,(unsigned short)vA); //0 A, 1 B, max 2^10
-        send_DAC(1,(unsigned short)vB); //0 A, 1 B, max 2^10   
+    //unsigned char Wadd=0b01000000;
+    //unsigned char Radd=0b01000001;
+    i2c_master_setup();
+    i2cwrite(0x00,0x00);
+    i2cwrite(0x01,0xFF);
+    i2cwrite(0x14,0x00);
+    while (1) {
+        // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
+        // remember the core timer runs at half the sysclk
 
-        _CP0_SET_COUNT(0);
-        while (_CP0_GET_COUNT() <48000000/2*dt) {}
+        if (i2cread(0x13)==0)
+        {
+            while(i2cread(0x13)==0){
+            i2cwrite(0x14,0xFF);
+            }
+            i2cwrite(0x14,0x00);
+        }
+
+        
+          
     }
 }
+void delay(void) {
+    _CP0_SET_COUNT(0);
+    int a=_CP0_GET_COUNT();
+    while(a<=48000000/4) {
+        a=_CP0_GET_COUNT();  
+    }
+  }
 
-void send_DAC(char AB, unsigned short val){
-    unsigned short p = AB << 15;
-    p=p|(0b111<<12);
-    p=p|(val<<2);
-    //p=0b1111111111111100;
-    LATAbits.LATA0=0; //bring CS low
-    spi_io(p>>8);
-    spi_io(p);        ;
-    LATAbits.LATA0=1;
+void i2cwrite(char reg,char val){
+    i2c_master_start();
+    i2c_master_send(Wadd); // send a byte (either an address or data)
+    i2c_master_send(reg);
+    i2c_master_send(val);
+    i2c_master_stop();
 }
-
-
+unsigned char i2cread(char reg){
+    i2c_master_start();
+    i2c_master_send(Wadd); // send a byte (either an address or data)
+    i2c_master_send(reg);
+    i2c_master_restart();
+    i2c_master_send(Radd);
+    int val=i2c_master_recv();
+    i2c_master_ack(1);
+    i2c_master_stop();
+    return val;
+}
