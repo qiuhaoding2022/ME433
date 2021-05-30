@@ -1,6 +1,10 @@
+// initialize SPI1
 #include<xc.h>           // processor SFR definitions
 #include<sys/attribs.h>  // __ISR macro
-
+#include<stdio.h>
+#include "i2c_master_noint.h"
+#include <math.h>
+#define pi 3.1415926
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
 #pragma config JTAGEN = OFF // disable jtag
@@ -10,10 +14,10 @@
 #pragma config CP = OFF // disable code protect
 
 // DEVCFG1
-#pragma config FNOSC = PRIPLL // use primary oscillator with pll
+#pragma config FNOSC = FRCPLL // use internal oscillator with pll
 #pragma config FSOSCEN = OFF // disable secondary oscillator
 #pragma config IESO = OFF // disable switching clocks
-#pragma config POSCMOD = HS // high speed crystal mode
+#pragma config POSCMOD = OFF // internal RC
 #pragma config OSCIOFNC = OFF // disable clock output
 #pragma config FPBDIV = DIV_1 // divide sysclk freq by 1 for peripheral bus clock
 #pragma config FCKSM = CSDCMD // disable clock switch and FSCM
@@ -31,7 +35,9 @@
 #pragma config USERID = 36 // some 16bit userid, doesn't matter what
 #pragma config PMDL1WAY = OFF // allow multiple reconfigurations
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
-void delay(void);
+void send_DAC(char AB, unsigned short val);
+
+
 int main() {
 
     __builtin_disable_interrupts(); // disable interrupts while initializing things
@@ -52,28 +58,41 @@ int main() {
     TRISAbits.TRISA4 = 0;
     LATAbits.LATA4 = 0;
     TRISBbits.TRISB4 = 1;
-    __builtin_enable_interrupts();
 
-    while (1) {
-        // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
-        // remember the core timer runs at half the sysclk
-        if (PORTBbits.RB4 == 0)
-        {
-            LATAbits.LATA4 = 1;
-            delay();
-            LATAbits.LATA4 = 0;
-            delay();
-            LATAbits.LATA4 = 1;
-            delay();
-            LATAbits.LATA4 = 0;
-            _CP0_SET_COUNT(0);
-        }        
+    initSPI();
+    
+    __builtin_enable_interrupts();
+    
+    unsigned char i=0;
+    float vA=0,vB=0,dt=0.001,tA=0,tB=0;
+    int slope = 1024*2/(1/dt);
+    while(1) {
+        LATAbits.LATA0=1;
+        vA=512+512*sin(4*pi*tA);
+        vB=vB+slope;
+        tB=tB+dt;
+        tA=tA+dt;
+        if(tB>=0.5){
+            slope=slope*-1;
+            tB=0;
+        }
+        send_DAC(0,(unsigned short)vA); //0 A, 1 B, max 2^10
+        send_DAC(1,(unsigned short)vB); //0 A, 1 B, max 2^10   
+
+        _CP0_SET_COUNT(0);
+        while (_CP0_GET_COUNT() <48000000/2*dt) {}
     }
 }
-void delay(void) {
-    _CP0_SET_COUNT(0);
-    int a=_CP0_GET_COUNT();
-    while(a<=48000000/4) {
-        a=_CP0_GET_COUNT();  
-    }
-  }
+
+void send_DAC(char AB, unsigned short val){
+    unsigned short p = AB << 15;
+    p=p|(0b111<<12);
+    p=p|(val<<2);
+    //p=0b1111111111111100;
+    LATAbits.LATA0=0; //bring CS low
+    spi_io(p>>8);
+    spi_io(p);        ;
+    LATAbits.LATA0=1;
+}
+
+
