@@ -57,7 +57,7 @@ int main() {
     TRISBbits.TRISB4 = 1;
     __builtin_enable_interrupts();
     initSPI();
-    LATAbits.LATA4 = 0;
+    LCD_init();
     LCD_clearScreen(BLACK);
     char c[100];
     sprintf(c,"Hello world %d!");

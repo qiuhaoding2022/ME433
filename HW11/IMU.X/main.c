@@ -2,6 +2,9 @@
 #include<sys/attribs.h>  // __ISR macro
 #include<stdio.h>
 #include "i2c_master_noint.h"
+#include "spi.h"
+#include "ST7789.h"
+
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
 #pragma config JTAGEN = OFF // disable jtag
@@ -36,8 +39,10 @@
 void delay(void);
 void i2cwrite(char reg,char val);
 unsigned char i2cread(char reg);
-unsigned char Wadd=0b01000000;
-unsigned char Radd=0b01000001;
+//unsigned char Wadd=0b01000000;
+//unsigned char Radd=0b01000001;
+#define Radd 0b11010101
+#define Wadd 0b11010100
 int main() {
 
     __builtin_disable_interrupts(); // disable interrupts while initializing things
@@ -61,13 +66,12 @@ int main() {
     __builtin_enable_interrupts();
     
     i2c_master_setup();
-    i2cwrite(0x00,0x00);
-    i2cwrite(0x01,0xFF);
-    i2cwrite(0x14,0x00);
+    
     while (1) {
+        LATAbits.LATA4 = 0;
+        LATAbits.LATA4 = 1;
 
-
-        if (i2cread(0x13)==0)
+       (i2cread(0xf)==0)
         {
             while(i2cread(0x13)==0){
             i2cwrite(0x14,0xFF);
