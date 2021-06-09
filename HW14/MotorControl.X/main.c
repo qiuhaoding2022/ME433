@@ -62,10 +62,8 @@ int main() {
     int i,pval[100],p170,p10;
     float dt;
     dt=0.02;
-    for (i=0;i<50;i++){
-    //pval[i]=(sin(dt*i/2*2*PI))*(OC5RS_MIN+2.*170);
-        pval[i]=OC5RS_MIN+2.11*160*dt*i;
-        pval[50+i]=467-2.11*160*dt*i;
+    for (i=0;i<100;i++){
+        pval[i]=(sin(dt*i/2*2*PI))*(2.11*80);
     }
     
     while(1)
@@ -74,7 +72,7 @@ int main() {
         //{
             for (i=0;i<100;i++)
             {
-                pwm_set(pval[i]);
+                pwm_set((int)(pval[i]+150+2.11*80));
                 delay(dt/2);
             }
         //}
