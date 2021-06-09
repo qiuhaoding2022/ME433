@@ -1,149 +1,167 @@
-/* ************************************************************************** */
-/** Descriptive File Name
+// functions to operate the ST7789 on the PIC32
+// adapted from https://github.com/sumotoy/TFT_ST7789
+// and https://github.com/adafruit/Adafruit-ST7789-Library
 
-  @Company
-    Company Name
+// pin connections:
+// GND - GND
+// VCC - 3.3V
+// SCL - B14
+// SDA - B13
+// RES - B15
+// DC - B12
+// BLK - NC
 
-  @File Name
-    filename.c
+#include <xc.h>
+#include "ST7789.h"
+#include "spi.h"
+#include "font.h"
 
-  @Summary
-    Brief description of the file.
+void LCD_command(unsigned char com) {
+    LATBbits.LATB12 = 0; // DC
+    spi_io(com);
+}
 
-  @Description
-    Describe the purpose of this file.
- */
-/* ************************************************************************** */
+void LCD_data(unsigned char dat) {
+    LATBbits.LATB12 = 1; // DC
+    spi_io(dat);
+}
 
-/* ************************************************************************** */
-/* ************************************************************************** */
-/* Section: Included Files                                                    */
-/* ************************************************************************** */
-/* ************************************************************************** */
+void LCD_data16(unsigned short dat) {
+    LATBbits.LATB12 = 1; // DC
+    spi_io(dat>>8);
+    spi_io(dat);
+}
 
-/* This section lists the other files that are included in this file.
- */
+void LCD_init() {
+  unsigned int time = 0;
+  LCD_command(ST7789_SWRESET); //software reset
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.15) {}
+  
+  LCD_command(ST7789_SLPOUT); //exit sleep
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.5) {}
+  
+  LCD_command(ST7789_COLMOD);
+  LCD_data(0x55);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.01) {}
+  
+  LCD_command(ST7789_MADCTL);
+  LCD_data(0x00);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.001) {}
+  
+  LCD_command(ST7789_CASET);
+  LCD_data(0x00);
+  LCD_data(ST7789_XSTART);
+  LCD_data((240+ST7789_XSTART)>>8);
+  LCD_data((240+ST7789_XSTART)&0xFF);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.001) {}
 
-/* TODO:  Include other files here if needed. */
+  LCD_command(ST7789_RASET);
+  LCD_data(0x00);
+  LCD_data(ST7789_YSTART);
+  LCD_data((240+ST7789_YSTART)>>8);
+  LCD_data((240+ST7789_YSTART)&0xFF);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.001) {}
+  
+  LCD_command(ST7789_INVON);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.01) {}
 
+  LCD_command(ST7789_NORON);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.01) {}
+  
+  LCD_command(ST7789_DISPON);
+  time = _CP0_GET_COUNT();
+  while (_CP0_GET_COUNT() < time + 48000000/2*0.5) {}
+}
 
-/* ************************************************************************** */
-/* ************************************************************************** */
-/* Section: File Scope or Global Data                                         */
-/* ************************************************************************** */
-/* ************************************************************************** */
+void LCD_drawPixel(unsigned short x, unsigned short y, unsigned short color) {
+  // should check boundary first
+  LCD_setAddr(x,y,x+1,y+1);
+  LCD_data16(color);
+}
 
-/*  A brief description of a section can be given directly below the section
-    banner.
- */
+void LCD_setAddr(unsigned short x0, unsigned short y0, unsigned short x1, unsigned short y1) {
+  LCD_command(ST7789_CASET); // Column
+  LCD_data16(x0+ST7789_XSTART);
+  LCD_data16(x1+ST7789_XSTART);
+  
+  LCD_command(ST7789_RASET); // Page
+  LCD_data16(y0+ST7789_YSTART);
+  LCD_data16(y1+ST7789_YSTART);
 
-/* ************************************************************************** */
-/** Descriptive Data Item Name
+  LCD_command(ST7789_RAMWR); // Into RAM
+}
 
-  @Summary
-    Brief one-line summary of the data item.
-    
-  @Description
-    Full description, explaining the purpose and usage of data item.
-    <p>
-    Additional description in consecutive paragraphs separated by HTML 
-    paragraph breaks, as necessary.
-    <p>
-    Type "JavaDoc" in the "How Do I?" IDE toolbar for more information on tags.
-    
-  @Remarks
-    Any additional remarks
- */
-int global_data;
+void LCD_clearScreen(unsigned short color) {
+  int i;
+  LCD_setAddr(0,0,_GRAMWIDTH,_GRAMHEIGH);
+	for (i = 0;i < _GRAMSIZE; i++){
+		LCD_data16(color);
+	}
+}
 
-
-/* ************************************************************************** */
-/* ************************************************************************** */
-// Section: Local Functions                                                   */
-/* ************************************************************************** */
-/* ************************************************************************** */
-
-/*  A brief description of a section can be given directly below the section
-    banner.
- */
-
-/* ************************************************************************** */
-
-/** 
-  @Function
-    int ExampleLocalFunctionName ( int param1, int param2 ) 
-
-  @Summary
-    Brief one-line description of the function.
-
-  @Description
-    Full description, explaining the purpose and usage of the function.
-    <p>
-    Additional description in consecutive paragraphs separated by HTML 
-    paragraph breaks, as necessary.
-    <p>
-    Type "JavaDoc" in the "How Do I?" IDE toolbar for more information on tags.
-
-  @Precondition
-    List and describe any required preconditions. If there are no preconditions,
-    enter "None."
-
-  @Parameters
-    @param param1 Describe the first parameter to the function.
-    
-    @param param2 Describe the second parameter to the function.
-
-  @Returns
-    List (if feasible) and describe the return values of the function.
-    <ul>
-      <li>1   Indicates an error occurred
-      <li>0   Indicates an error did not occur
-    </ul>
-
-  @Remarks
-    Describe any special behavior not described above.
-    <p>
-    Any additional remarks.
-
-  @Example
-    @code
-    if(ExampleFunctionName(1, 2) == 0)
-    {
-        return 3;
+// drawChar function
+void LCD_drawChar(int x,int y,unsigned char letter,int color){
+    int c,i,j;
+    c=(int)letter;
+    c=c-32;
+    for (i=0;i<5;i++){    
+        for (j=0;j<8;j++)
+        {
+            if(ASCII[c][i]&(1<<j))
+            {
+                LCD_drawPixel(x+i,y+j,color);
+            }
+            else
+            {
+                LCD_drawPixel(x+i,y+j,BLACK);
+            }
+        }
     }
- */
-static int ExampleLocalFunction(int param1, int param2) {
-    return 0;
+}
+void LCD_drawStr (int x, int y, char* str, int color)
+{
+    int i=0;
+    while (str[i]){
+        LCD_drawChar(x+i*5 , y, str[i], color);
+        i++;
+    }
+}
+void LCD_drawProgress (int x, int y, int length, int color)
+{
+    int wid;
+    for(wid=0;wid<=5;wid++){
+        LCD_drawPixel(x+length, y+wid, color);}
+}
+void LCD_drawX (signed int length, int color)
+{
+    int wid,L,sign;
+    sign=1;
+    if(length<0){sign=-1;}
+    for(L=0;L<=abs(length);L++)
+    {
+        for(wid=0;wid<=5;wid++){
+            LCD_drawPixel(120+L*sign,118+wid, color);}
+    }
+}
+
+void LCD_drawY (signed int length, int color)
+{
+    int wid,L,sign;
+    sign=1;
+    if(length<0){sign=-1;}
+    for(L=0;L<=abs(length);L++)
+    {
+        for(wid=0;wid<=5;wid++){
+            LCD_drawPixel(118+wid,120+L*sign, color);}
+    }
 }
 
 
-/* ************************************************************************** */
-/* ************************************************************************** */
-// Section: Interface Functions                                               */
-/* ************************************************************************** */
-/* ************************************************************************** */
-
-/*  A brief description of a section can be given directly below the section
-    banner.
- */
-
-// *****************************************************************************
-
-/** 
-  @Function
-    int ExampleInterfaceFunctionName ( int param1, int param2 ) 
-
-  @Summary
-    Brief one-line description of the function.
-
-  @Remarks
-    Refer to the example_file.h interface header for function usage details.
- */
-int ExampleInterfaceFunction(int param1, int param2) {
-    return 0;
-}
-
-
-/* *****************************************************************************
- End of File
- */

@@ -58,3 +58,44 @@ void i2c_master_stop(void) { // send a STOP:
         ;
     } // wait for STOP to complete
 }
+void i2c_write(char reg,char val){
+    i2c_master_start();
+    i2c_master_send(Wadd); // send a byte (either an address or data)
+    i2c_master_send(reg);
+    i2c_master_send(val);
+    i2c_master_stop();
+}
+unsigned char i2c_read(char reg){
+    i2c_master_start();
+    i2c_master_send(Wadd); // send a byte (either an address or data)
+    i2c_master_send(reg);
+    i2c_master_restart();
+    i2c_master_send(Radd);
+    int val=i2c_master_recv();
+    i2c_master_ack(1);
+    i2c_master_stop();
+    return val;
+}
+void I2C_read_multiple(unsigned char reg, signed short * data, int length){
+    i2c_master_start();
+    i2c_master_send(Wadd); // send a byte (either an address or data)
+    i2c_master_send(reg);
+    i2c_master_restart();
+    i2c_master_send(Radd);
+    int i;
+    unsigned char val,val2;
+    for (i=0;i<length-1;i++)
+    {
+        val=i2c_master_recv();
+        i2c_master_ack(0);
+        val2=i2c_master_recv();
+        i2c_master_ack(0);
+        data[i]=(val2<<8)|val;
+    }
+    val=i2c_master_recv();
+    i2c_master_ack(0);
+    val2=i2c_master_recv();
+    i2c_master_ack(1);
+    i2c_master_stop();
+    data[length-1]=(val2<<8)|val;
+}

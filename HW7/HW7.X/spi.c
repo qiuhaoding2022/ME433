@@ -3,7 +3,7 @@
 
 void initSPI() {
     // Pin B14 has to be SCK1
-    // Turn of analog pins
+    // Turn off analog pins
     ANSELA =0;
     // Make an output pin for CS
     TRISAbits.TRISA0 = 0;

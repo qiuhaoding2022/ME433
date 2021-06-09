@@ -85,5 +85,6 @@ void LCD_clearScreen(unsigned short); // set the color of every pixel
 void LCD_drawChar(int x,int y,unsigned char letter,int color); // drawChar function
 void LCD_drawStr (int x, int y, char* str, int color);// drawString function
 void LCD_drawProgress (int x, int y, int length, int color);
-
+void LCD_drawX (signed int length, int color);
+void LCD_drawY (signed int length, int color);
 #endif

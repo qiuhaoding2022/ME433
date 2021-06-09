@@ -1,179 +1,48 @@
-/* ************************************************************************** */
-/** Descriptive File Name
+#include "spi.h"
+#include <xc.h>
 
-  @Company
-    Company Name
-
-  @File Name
-    filename.h
-
-  @Summary
-    Brief description of the file.
-
-  @Description
-    Describe the purpose of this file.
- */
-/* ************************************************************************** */
-
-#ifndef _EXAMPLE_FILE_NAME_H    /* Guard against multiple inclusion */
-#define _EXAMPLE_FILE_NAME_H
-
-
-/* ************************************************************************** */
-/* ************************************************************************** */
-/* Section: Included Files                                                    */
-/* ************************************************************************** */
-/* ************************************************************************** */
-
-/* This section lists the other files that are included in this file.
- */
-
-/* TODO:  Include other files here if needed. */
-
-
-/* Provide C++ Compatibility */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-    /* ************************************************************************** */
-    /* ************************************************************************** */
-    /* Section: Constants                                                         */
-    /* ************************************************************************** */
-    /* ************************************************************************** */
-
-    /*  A brief description of a section can be given directly below the section
-        banner.
-     */
-
-
-    /* ************************************************************************** */
-    /** Descriptive Constant Name
-
-      @Summary
-        Brief one-line summary of the constant.
+// initialize SPI1
+void initSPI() {
+    // Turn off analog functionality of A and B pins
+    ANSELA = 0;
+    ANSELB = 0;
     
-      @Description
-        Full description, explaining the purpose and usage of the constant.
-        <p>
-        Additional description in consecutive paragraphs separated by HTML 
-        paragraph breaks, as necessary.
-        <p>
-        Type "JavaDoc" in the "How Do I?" IDE toolbar for more information on tags.
+    // Pin B14 has to be SCK1 -> SCL
+    TRISBbits.TRISB14 = 0; 
+    // set SDO1 - B13 -> SDA 
+    RPB13Rbits.RPB13R=0b0011;
+    //
+    // set B15 -> RES (reset), initialize to High
+    TRISBbits.TRISB15 = 0;
+    LATBbits.LATB15 = 1;
+    //
+    // set B12 -> DC (data control), initialize Low
+    TRISBbits.TRISB12 = 0;
+    LATBbits.LATB12 = 0;
+    //
+
+    // setup SPI1
+    SPI1CON = 0; // turn off the spi module and reset it
+    SPI1BUF; // clear the rx buffer by reading from it
+    SPI1BRG = 1; // baud rate to 10 MHz [SPI1BRG = (48000000/(2*desired))-1]
+    SPI1STATbits.SPIROV = 0; // clear the overflow bit
+    SPI1CONbits.CKP = 1; // clock idle high **This is specific to ST77898**
+    SPI1CONbits.CKE = 1; // data changes when clock goes from logic hi to lo 
+    SPI1CONbits.MSTEN = 1; // master operation
+    SPI1CONbits.ON = 1; // turn on spi 
     
-      @Remarks
-        Any additional remarks
-     */
-#define EXAMPLE_CONSTANT 0
-
-
-    // *****************************************************************************
-    // *****************************************************************************
-    // Section: Data Types
-    // *****************************************************************************
-    // *****************************************************************************
-
-    /*  A brief description of a section can be given directly below the section
-        banner.
-     */
-
-
-    // *****************************************************************************
-
-    /** Descriptive Data Type Name
-
-      @Summary
-        Brief one-line summary of the data type.
-    
-      @Description
-        Full description, explaining the purpose and usage of the data type.
-        <p>
-        Additional description in consecutive paragraphs separated by HTML 
-        paragraph breaks, as necessary.
-        <p>
-        Type "JavaDoc" in the "How Do I?" IDE toolbar for more information on tags.
-
-      @Remarks
-        Any additional remarks
-        <p>
-        Describe enumeration elements and structure and union members above each 
-        element or member.
-     */
-    typedef struct _example_struct_t {
-        /* Describe structure member. */
-        int some_number;
-
-        /* Describe structure member. */
-        bool some_flag;
-
-    } example_struct_t;
-
-
-    // *****************************************************************************
-    // *****************************************************************************
-    // Section: Interface Functions
-    // *****************************************************************************
-    // *****************************************************************************
-
-    /*  A brief description of a section can be given directly below the section
-        banner.
-     */
-
-    // *****************************************************************************
-    /**
-      @Function
-        int ExampleFunctionName ( int param1, int param2 ) 
-
-      @Summary
-        Brief one-line description of the function.
-
-      @Description
-        Full description, explaining the purpose and usage of the function.
-        <p>
-        Additional description in consecutive paragraphs separated by HTML 
-        paragraph breaks, as necessary.
-        <p>
-        Type "JavaDoc" in the "How Do I?" IDE toolbar for more information on tags.
-
-      @Precondition
-        List and describe any required preconditions. If there are no preconditions,
-        enter "None."
-
-      @Parameters
-        @param param1 Describe the first parameter to the function.
-    
-        @param param2 Describe the second parameter to the function.
-
-      @Returns
-        List (if feasible) and describe the return values of the function.
-        <ul>
-          <li>1   Indicates an error occurred
-          <li>0   Indicates an error did not occur
-        </ul>
-
-      @Remarks
-        Describe any special behavior not described above.
-        <p>
-        Any additional remarks.
-
-      @Example
-        @code
-        if(ExampleFunctionName(1, 2) == 0)
-        {
-            return 3;
-        }
-     */
-    int ExampleFunction(int param1, int param2);
-
-
-    /* Provide C++ Compatibility */
-#ifdef __cplusplus
+    // blink the reset pin to reset the display
+    LATBbits.LATB15 = 0;
+    _CP0_SET_COUNT(0);
+    while(_CP0_GET_COUNT()<24000000/1000){} // 1ms
+    LATBbits.LATB15 = 1;
 }
-#endif
 
-#endif /* _EXAMPLE_FILE_NAME_H */
-
-/* *****************************************************************************
- End of File
- */
+// send a byte via spi and return the response
+unsigned char spi_io(unsigned char o) {
+  SPI1BUF = o;
+  while(!SPI1STATbits.SPIRBF) { // wait to receive the byte
+    ;
+  }
+  return SPI1BUF;
+}

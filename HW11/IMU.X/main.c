@@ -4,7 +4,7 @@
 #include "i2c_master_noint.h"
 #include "spi.h"
 #include "ST7789.h"
-
+#include "imu.h"
 // DEVCFG0
 #pragma config DEBUG = OFF // disable debugging
 #pragma config JTAGEN = OFF // disable jtag
@@ -37,12 +37,10 @@
 #pragma config IOL1WAY = OFF // allow multiple reconfigurations
 
 void delay(void);
-void i2cwrite(char reg,char val);
-unsigned char i2cread(char reg);
+
 //unsigned char Wadd=0b01000000;
 //unsigned char Radd=0b01000001;
-#define Radd 0b11010101
-#define Wadd 0b11010100
+
 int main() {
 
     __builtin_disable_interrupts(); // disable interrupts while initializing things
@@ -63,49 +61,49 @@ int main() {
     TRISAbits.TRISA4 = 0;
     LATAbits.LATA4 = 0;
     TRISBbits.TRISB4 = 1;
-    __builtin_enable_interrupts();
-    
+    initSPI();
+    LCD_init();
     i2c_master_setup();
-    
+    imu_setup();
+    __builtin_enable_interrupts();
+    LCD_clearScreen(BLACK);
+    signed short temp[1],acc[3];
+    signed char zacc;
+    char c[100];
+    signed int x,y;
     while (1) {
         LATAbits.LATA4 = 0;
+        delay();
         LATAbits.LATA4 = 1;
-
-       (i2cread(0xf)==0)
-        {
-            while(i2cread(0x13)==0){
-            i2cwrite(0x14,0xFF);
-            }
-            i2cwrite(0x14,0x00);
+        delay();
+        I2C_read_multiple(0x20,temp,1);
+        I2C_read_multiple(0x28,acc,3);
+    
+        if (PORTBbits.RB4 == 0){
+            LCD_clearScreen(BLACK);
+            sprintf(c,"Temperature is %.2f degree C.            ",(float)((temp[0]+11800)/524.28));
+            LCD_drawStr(28,40,c,RED);
+            sprintf(c,"X acc reading is %d .          ",acc[0]);
+            LCD_drawStr(28,48,c,RED);
+            sprintf(c,"Y acc reading is %d .          ",acc[1]);
+            LCD_drawStr(28,56,c,RED);
+            sprintf(c,"Z acc reading is %d .          ",acc[2]);
+            LCD_drawStr(28,64,c,RED);
         }
-
-        
-          
+        else
+        {  
+            LCD_clearScreen(BLACK);
+            x=acc[1]*130/16300;
+            y=acc[0]*130/16300;
+            LCD_drawX(x,CYAN);
+            LCD_drawY(y,CYAN);
+        }
     }
 }
 void delay(void) {
     _CP0_SET_COUNT(0);
     int a=_CP0_GET_COUNT();
-    while(a<=48000000/4) {
+    while(a<=48000000/1000) {
         a=_CP0_GET_COUNT();  
     }
   }
-
-void i2cwrite(char reg,char val){
-    i2c_master_start();
-    i2c_master_send(Wadd); // send a byte (either an address or data)
-    i2c_master_send(reg);
-    i2c_master_send(val);
-    i2c_master_stop();
-}
-unsigned char i2cread(char reg){
-    i2c_master_start();
-    i2c_master_send(Wadd); // send a byte (either an address or data)
-    i2c_master_send(reg);
-    i2c_master_restart();
-    i2c_master_send(Radd);
-    int val=i2c_master_recv();
-    i2c_master_ack(1);
-    i2c_master_stop();
-    return val;
-}
